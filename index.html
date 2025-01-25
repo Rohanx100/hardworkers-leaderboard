@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardworkers Leaderboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(145deg, #121212, #1f1f1f);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(145deg, #ffd700, #b59b36);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: #000;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .header p {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Current Time */
+        .time {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* Login Section */
+        .login, .admin-controls {
+            padding: 20px;
+            text-align: center;
+        }
+        .login input, .admin-controls input {
+            width: 200px;
+            padding: 10px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            background: #2a2a2a;
+            color: #fff;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .login button, .admin-controls button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #ffd700;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #f5c400;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Leaderboard Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        table th {
+            background: rgba(50, 50, 50, 0.9);
+            font-size: 16px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        table tbody tr {
+            transition: background 0.3s ease;
+        }
+        table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Highlight Colors for 1st, 2nd, and 3rd */
+        .first {
+            background-color: #ffd700;
+            color: #000;
+            font-weight: bold;
+        }
+        .second {
+            background-color: #c0c0c0;
+            color: #000;
+            font-weight: bold;
+        }
+        .third {
+            background-color: #cd7f32;
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            table th, table td {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .login input, .admin-controls input {
+                width: 150px;
+            }
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding-top: 100px;
+        }
+        .modal-content {
+            background-color: #2a2a2a;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            color: #fff;
+        }
+        .modal-header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .modal-body {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .close {
+            color: #f5c400;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Rules Button -->
+        <button onclick="showRules()" style="background: #ffd700; color: #000; padding: 10px 20px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: all 0.3s ease;">
+            Show Rules
+        </button>
+
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Hardworkers Leaderboard</h1>
+            <p>Highlighting the best performers with premium style</p>
+        </div>
+
+        <!-- Current Time -->
+        <div class="time" id="currentTime"></div>
+
+        <!-- Login Section -->
+        <div class="login">
+            <input type="text" id="username" placeholder="Enter Username">
+            <input type="password" id="password" placeholder="Enter Password">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <!-- Admin Controls -->
+        <div class="admin-controls" id="adminControls" style="display: none;">
+            <h3>Admin Panel</h3>
+            <input type="text" id="name" placeholder="Enter Member Name">
+            <input type="number" id="score" placeholder="Enter Member Score">
+            <button onclick="addMember()">Add Member</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Members will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Rules -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRules()">&times;</span>
+            <div class="modal-header">Leaderboard Rules</div>
+            <div class="modal-body">
+                <p><strong>1. Top performers will be highlighted in Gold, Silver, and Bronze.</strong></p>
+                <p><strong>2. Ensure honest tracking of your progress. 🥇🥈🥉</strong></p>
+                <p><strong>3. Points are awarded as follows:</strong></p>
+                <ul>
+                    <li>Each lecture completed: 100 points 🎖️</li>
+                    <li>Writing practice per page: 40 points 🎖️</li>
+                    <li>Revision per chapter: 150 points 🎖️</li>
+                </ul>
+                <p><strong>4. Submit your report of all work done throughout the day daily at any time.</strong></p>
+                <p><strong>No Bakchodi</strong></p>
+                <p><strong>No Stickers/ GIFs (irritation in disciplined group)</strong></p>
+                <p><strong>If anyone wants to register their name in leaderboard, submit the first thing.</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Display Current Time
+        function showTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString();
+        }
+        setInterval(showTime, 1000);
+        showTime();
+
+        // Mock Leaderboard Data
+        let leaderboard = [];
+
+        function displayLeaderboard() {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = "";
+            leaderboard
+                .sort((a, b) => b.score - a.score)
+                .forEach((member, index) => {
+                    let rowClass = "";
+                    if (index === 0) rowClass = "first";
+                    else if (index === 1) rowClass = "second";
+                    else if (index === 2) rowClass = "third";
+
+                    tbody.innerHTML += `<tr class="${rowClass}"><td>${index + 1}</td><td>${member.name}</td><td>${member.score}</td></tr>`;
+                });
+        }
+
+        function addMember() {
+            const name = document.getElementById('name').value.trim();
+            const score = parseInt(document.getElementById('score').value.trim());
+            if (name && !isNaN(score)) {
+                leaderboard.push({ name, score });
+                displayLeaderboard();
+            } else {
+                alert("Invalid input!");
+            }
+        }
+
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            if (username === "admin" && password === "admin123") {
+                document.querySelector('.login').style.display = "none";
+                document.getElementById('adminControls').style.display = "block";
+            } else {
+                alert("Invalid credentials");
+            }
+        }
+
+        function logout() {
+            document.getElementById('adminControls').style.display = "none";
+            document.querySelector('.login').style.display = "block";
+        }
+
+        // Rules Modal Functions
+        function showRules() {
+            document.getElementById('rulesModal').style.display = "block";
+        }
+
+        function closeRules() {
+            document.getElementById('rulesModal').style.display = "none";
+        }
+    </script>
+</body>
+</html>
