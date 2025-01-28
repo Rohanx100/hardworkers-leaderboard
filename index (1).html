@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardworkers Dashboard</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #fdfbfb, #ebedee);
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 90%;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .quote {
+      font-style: italic;
+      color: #555;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    /* Buttons */
+    button {
+      background-color: yellow;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 10px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: gold;
+    }
+
+    /* Podium Section */
+    .podium {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .podium div {
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .podium-first {
+      background-color: gold;
+      height: 140px;
+    }
+
+    .podium-second {
+      background-color: silver;
+    }
+
+    .podium-third {
+      background-color: #cd7f32;
+    }
+
+    /* Leaderboard Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    /* History Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      width: 80%;
+      border-radius: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Hardworkers Dashboard</h1>
+    <p class="quote">"Work hard in silence, let your success be your noise."</p>
+
+    <!-- Podium Section -->
+    <div class="podium">
+      <div id="podium-second" class="podium-second">2nd<br><span id="second-name">N/A</span></div>
+      <div id="podium-first" class="podium-first">1st<br><span id="first-name">N/A</span></div>
+      <div id="podium-third" class="podium-third">3rd<br><span id="third-name">N/A</span></div>
+    </div>
+
+    <!-- Leaderboard Section -->
+    <div>
+      <h2>Leaderboard</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Lectures</th>
+            <th>Pages</th>
+            <th>Chapters</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard"></tbody>
+      </table>
+    </div>
+
+    <!-- Add Student Section -->
+    <div>
+      <h2>Add Student</h2>
+      <input type="text" id="student-name" placeholder="Enter Name">
+      <button onclick="addStudent()">Add Student</button>
+    </div>
+
+    <!-- Add Activity Section -->
+    <div>
+      <h2>Add Activity</h2>
+      <select id="student-select">
+        <option value="" disabled selected>Select Student</option>
+      </select>
+      <input type="number" id="lectures" placeholder="Lectures Completed">
+      <input type="number" id="pages" placeholder="Pages Written">
+      <input type="number" id="chapters" placeholder="Chapters Revised">
+      <button onclick="addActivity()">Submit Activity</button>
+    </div>
+
+    <!-- History Modal -->
+    <button onclick="showHistory()">Check History</button>
+    <div id="history-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeHistory()">&times;</span>
+        <h2>Activity History</h2>
+        <div id="history-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock Data
+    let students = [];
+    let activities = [];
+
+    // Add a new student
+    function addStudent() {
+      const nameInput = document.getElementById('student-name');
+      const name = nameInput.value.trim();
+
+      if (!name) {
+        alert('Please enter a valid student name!');
+        return;
+      }
+
+      const newStudent = { id: Date.now(), name, lectures: 0, pages: 0, chapters: 0, score: 0 };
+      students.push(newStudent);
+      nameInput.value = '';
+
+      updateStudentSelect();
+      updateLeaderboard();
+      alert('Student added successfully!');
+    }
+
+    // Update student dropdown
+    function updateStudentSelect() {
+      const studentSelect = document.getElementById('student-select');
+      studentSelect.innerHTML = '<option value="" disabled selected>Select Student</option>';
+      students.forEach(student => {
+        const option = document.createElement('option');
+        option.value = student.id;
+        option.textContent = student.name;
+        studentSelect.appendChild(option);
+      });
+    }
+
+    // Add activity
+    function addActivity() {
+      const studentId = document.getElementById('student-select').value;
+      const lectures = parseInt(document.getElementById('lectures').value) || 0;
+      const pages = parseInt(document.getElementById('pages').value) || 0;
+      const chapters = parseInt(document.getElementById('chapters').value) || 0;
+
+      if (!studentId || (lectures === 0 && pages === 0 && chapters === 0)) {
+        alert('Please select a student and fill in at least one activity field!');
+        return;
+      }
+
+      const student = students.find(s => s.id == studentId);
+      student.lectures += lectures;
+      student.pages += pages;
+      student.chapters += chapters;
+      student.score += lectures * 100 + pages * 40 + chapters * 150;
+
+      activities.push({ studentId, lectures, pages, chapters, date: new Date().toLocaleString() });
+      updateLeaderboard();
+      alert('Activity added successfully!');
+    }
+
+    // Update leaderboard and podium
+    function updateLeaderboard() {
+      const leaderboard = document.getElementById('leaderboard');
+      leaderboard.innerHTML = '';
+
+      students
+        .sort((a, b) => b.score - a.score)
+        .forEach((student, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${student.name}</td>
+            <td>${student.lectures}</td>
+            <td>${student.pages}</td>
+            <td>${student.chapters}</td>
+            <td>${student.score}</td>
+          `;
+          leaderboard.appendChild(row);
+        });
+
+      updatePodium();
+    }
+
+    // Update podium
+    function updatePodium() {
+      const sortedStudents = students.sort((a, b) => b.score - a.score);
+
+      document.getElementById('first-name').textContent = sortedStudents[0]?.name || 'N/A';
+      document.getElementById('second-name').textContent = sortedStudents[1]?.name || 'N/A';
+      document.getElementById('third-name').textContent = sortedStudents[2]?.name || 'N/A';
+    }
+
+    // Show history modal
+    function showHistory() {
+      const historyContent = document.getElementById('history-content');
+      historyContent.innerHTML = activities.map(activity => {
+        const student = students.find(s => s.id == activity.studentId);
+        return `<p>${student.name} - Lectures: ${activity.lectures}, Pages: ${activity.pages}, Chapters: ${activity.chapters} (${activity.date})</p>`;
+      }).join('');
+
+      document.getElementById('history-modal').style.display = 'block';
+    }
+
+    // Close history modal
+    function closeHistory() {
+      document.getElementById('history-modal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
